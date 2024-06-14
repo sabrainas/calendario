@@ -1,113 +1,300 @@
-import Image from "next/image";
+"use client"
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin, { Draggable, DropArg } from '@fullcalendar/interaction'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import { Fragment, useEffect, useState } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { CheckIcon, ExclamationTriangleIcon } from '@heroicons/react/20/solid'
+import multiMonthPlugin from '@fullcalendar/multimonth'
+import EventoModal from '@/components/eventos/EventoModal'
+import Adicionar from '@/components/eventos/AdicionarEvento'
+import { EventInput } from '@fullcalendar/core';
+import AddEventModal from '@/components/eventos/AddEventModal'
+import { Calendar } from "@nextui-org/calendar";
+import { parseDate } from '@internationalized/date';
+import Modal from '@/components/Modal/Modal'
+
+interface Event {
+  title: string;
+  start: Date | string;
+  allDay: boolean;
+  id: number;
+}
 
 export default function Home() {
+  const [events, setEvents] = useState<EventInput[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allEvents, setAllEvents] = useState<Event[]>([])
+  const [showModal, setShowModal] = useState(false)
+  const [addEventModal, setAddEventModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [idToDelete, setIdToDelete] = useState<number | null>(null)
+  const [newEvent, setNewEvent] = useState<Event>({
+    title: '',
+    start: '',
+    allDay: false,
+    id: 0
+  })
+  const [selectEvent, setSelectEvent] = useState(null)
+  const event = {
+    id: String(new Date().getTime()), // Convertendo para string
+    title: newEvent.title,
+    start: newEvent.start,
+    allDay: newEvent.allDay,
+  };
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  useEffect(() => {
+    let draggableEl = document.getElementById('draggable-el')
+    if (draggableEl) {
+      new Draggable(draggableEl, {
+        itemSelector: ".fc-event",
+        eventData: function (eventEl) {
+          let title = eventEl.getAttribute("title")
+          let id = eventEl.getAttribute("data")
+          let start = eventEl.getAttribute("start")
+          return { title, id, start }
+        }
+      })
+    }
+  }, [])
+
+  function handleDateClick(arg: { date: Date, allDay: boolean }) {
+    setNewEvent({ ...newEvent, start: arg.date, allDay: arg.allDay, id: new Date().getTime() })
+    setShowModal(true)
+  }
+
+  const moveEvents = (data: any) => {
+    const { start, end } = data;
+    const updatedEvents = events.map((event) => {
+      if (event.id === data.event.id) {
+        return {
+          ...event,
+          start: new Date(start),
+          end: new Date(end),
+        };
+      }
+      return event;
+    });
+    setEvents(updatedEvents);
+  }
+
+  // const handleEventClick = (event: any) => {
+  //   setSelectEvent(event)
+  // }
+
+  // const handleEventClose = (event: any) => {
+  //   setSelectEvent(null)
+  // }
+
+  function addEvent(data: DropArg) {
+    const event = { ...newEvent, start: data.date.toISOString(), title: data.draggedEl.innerText, allDay: data.allDay, id: new Date().getTime() }
+    setAllEvents([...allEvents, event])
+  }
+
+  function handleDeleteModal(data: { event: { id: string } }) {
+    setShowDeleteModal(true)
+    setIdToDelete(Number(data.event.id))
+  }
+
+  function handleDelete() {
+    setAllEvents(allEvents.filter(event => Number(event.id) !== Number(idToDelete)))
+    setShowDeleteModal(false)
+    setIdToDelete(null)
+  }
+
+  function handleCloseModal() {
+    setShowModal(false)
+    setNewEvent({
+      title: '',
+      start: '',
+      allDay: false,
+      id: 0
+    })
+    setShowDeleteModal(false)
+    setIdToDelete(null)
+  }
+
+  const handleEventClick = (clickInfo: any) => {
+    setSelectEvent(clickInfo.event);
+  };
+
+
+  const handleEventClose = (event: any) => {
+    setSelectEvent(null)
+  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setNewEvent({
+      ...newEvent,
+      title: e.target.value
+    })
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const event = { ...newEvent, id: new Date().getTime() };
+    setAllEvents([...allEvents, event]);
+    setShowModal(false);
+    setNewEvent({
+      title: '',
+      start: '',
+      allDay: false,
+      id: 0
+    });
+  }
+
+
+  const handleAdd = (novoEvento: any) => {
+    setEvents([...events, { ...novoEvento, id: events.length + 1 }]);
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <>
+      <nav className="flex justify-between mb-12 border-b border-violet-100 p-4">
+        <h1 className="font-bold text-2xl text-gray-700">Agenda</h1>
+      </nav>
+      <main className="flex items-center justify-center p-5">
+        <div className="grid grid-cols-10">
+          <div className=''>
+            <Adicionar onAdd={handleAdd} />
+          </div>
+          <div className="col-span-9">
+            <FullCalendar
+              plugins={[
+                dayGridPlugin,
+                interactionPlugin,
+                timeGridPlugin,
+                multiMonthPlugin,
+              ]}
+              buttonText={{
+                today: 'Hoje',
+                month: 'Mês',
+                week: 'Semana',
+                day: 'Dia',
+                year: 'Ano',
+              }}
+              customButtons={{
+                addEventButton: {
+                  text: 'Adicionar Evento',
+                },
+                dropDownButton: {
+                  
+                }
+              }}
+              headerToolbar={{
+                left: 'addEventButton',
+                center: 'title',
+                right: 'multiMonthYear,dayGridMonth,timeGridDay prev,next'
+              }}
+              events={events}
+              nowIndicator={true}
+              editable={true}
+              droppable={true}
+              selectable={true}
+              selectMirror={true}
+              dateClick={handleDateClick}
+              drop={(data) => addEvent(data)}
+              eventClick={handleEventClick}
+              locale={'pt-br'}
             />
-          </a>
+          </div>
+
+          {selectEvent && (
+            <Modal closeModal={closeModal}>
+              <EventoModal events={selectEvent}
+              onClose={handleEventClose} />
+            </Modal>
+            
+          )}
+
+          {addEventModal && (
+            <AddEventModal events={addEventModal} onClose={handleEventClose} />
+          )}
+
+          {/* <div id="draggable-el" className="ml-8 w-full border-2 p-2 rounded-md mt-16 lg:h-1/2 bg-violet-50">
+            <h1 className="font-bold text-lg text-center">Eventos</h1>
+            {events.map(event => (
+              <div
+                className="fc-event border-2 p-1 m-2 w-full rounded-md ml-auto text-center bg-white"
+                title={event.title}
+                key={event.id}
+              >
+                {event.title}
+              </div>
+            ))}
+          </div> */}
         </div>
-      </div>
+        <Transition.Root show={showModal} as={Fragment}>
+          <Dialog as="div" className="relative z-10" onClose={setShowModal}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            </Transition.Child>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+            <div className="fixed inset-0 z-10 overflow-y-auto">
+              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                >
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                    <div>
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+                      </div>
+                      <div className="mt-3 text-center sm:mt-5">
+                        <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
+                          Criar Evento
+                        </Dialog.Title>
+                        <form action="submit" onSubmit={handleSubmit}>
+                          <div className="mt-2">
+                            <input type="text" name="title" className="block w-full rounded-md border-0 py-1.5 text-gray-900 
+                            shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                            sm:text-sm sm:leading-6"
+                              value={newEvent.title} onChange={(e) => handleChange(e)} placeholder="Title" />
+                          </div>
+                          <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                            <button
+                              type="submit"
+                              className="inline-flex w-full justify-center rounded-md bg-pink-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 sm:col-start-2 disabled:opacity-25"
+                              disabled={newEvent.title === ''}
+                            >
+                              Criar
+                            </button>
+                            <button
+                              type="button"
+                              className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                              onClick={handleCloseModal}
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition.Root>
+      </main >
+    </>
+  )
 }

@@ -1,169 +1,272 @@
 "use client";
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import multiMonthPlugin from "@fullcalendar/multimonth";
+import { EventInput } from "@fullcalendar/core";
+import Select from "react-select";
+import { useEffect, useRef, useState } from "react";
+import Modal from "./Modal/Modal";
+import EventoModal from "./eventos/EventoModal";
+import { CheckIcon } from "@heroicons/react/20/solid";
+import Dropdown from "./Dropdown/Dropdown";
 
-import { useState } from 'react'
-import { Calendar, momentLocalizer} from 'react-big-calendar'
-import moment from 'moment'
-import 'moment/locale/pt-br';
-import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop"
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css"
-import "react-big-calendar/lib/css/react-big-calendar.css"
-import './styles.css';
-import {eventoPadrao} from './eventos/Evento'
-import EventModal from './eventos/EventoModal'
-import Adicionar from './eventos/AdicionarEvento'
-//import { MongoDatabase } from '../database/database'
-
-const DragAndDropCalendar = withDragAndDrop(Calendar)
-const localizer = momentLocalizer(moment)
-
-export default function Calendario() {
-  //const mongo = new MongoDatabase()
-  //mongo.calendar()
-  const [events, setEvents] = useState(eventoPadrao)
-  //const [selectEvent, setSelectEvent] = useState(null)
-
-  const eventStyle = (event: any) => ({
-    style: {
-      backgroundColor: event.color
-    },
-  })
-
-  const moveEvents = (data: any) => {
-    const { start, end } = data;
-    const updatedEvents = events.map((event) => {
-      if (event.id === data.event.id) {
-        return {
-          ...event,
-          start: new Date(start),
-          end: new Date(end),
-        };
-      }
-      return event;
-    });
-    setEvents(updatedEvents);
-  }
-
-  // const handleEventClick = (event: any) => {
-  //   setSelectEvent(event)
-  // }
-
-  // const handleEventClose = (event: any) => {
-  //   setSelectEvent(null)
-  // }
-
-  const handleAdd = (novoEvento: any) => {
-    setEvents([...events, { ...novoEvento, id: events.length + 1 }]);
-  }
-  
-
-  return (
-    <div className='flex w-full '>
-      {/* toolbar */}
-      
-      {/* calendario */}
-      <div className='w-[80vw] h-screen'>
-        <DragAndDropCalendar
-          className='calendar'
-          defaultDate={moment().toDate()}
-          localizer={localizer}
-          defaultView='month'
-          events={events}
-          resizable
-          onEventDrop={moveEvents}
-          onEventResize={moveEvents}
-          //onSelectEvent={handleEventClick}
-          eventPropGetter={eventStyle}
-          components={{
-            toolbar: CustomTollbar,
-          }}
-        />
-      </div>
-
-      {/* {selectEvent && (
-        <EventModal
-          event={selectEvent}
-          onClose={handleEventClose}
-        />
-      )} */}
-    </div>
-  )
+interface Event {
+    id: string;
+    title: string;
+    start: Date | string;
+    end?: Date | string;
 }
 
-const CustomTollbar = ({ label, onView, onNavigate, views }: any) => {
-  const [itemText, setItemText] = useState('Mês');
-  const [open, setOpen] = useState(false);
+export default function Calendario() {
+    const [view, setView] = useState("multiMonthYear");
+    const calendarRef = useRef<FullCalendar | null>(null);
+    const [events, setEvents] = useState<EventInput[]>([]);
+    const [newEvent, setNewEvent] = useState<Event>({ title: "", start: "", id: "" });
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectEvent, setSelectEvent] = useState<any>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [idToDelete, setIdToDelete] = useState<string | null>(null);
 
-  
+    const event = {
+        id: String(new Date().getTime()),
+        title: newEvent.title,
+        start: newEvent.start,
+        end: newEvent.end,
+    };
 
-  const toggleDropdown = () => {
-    setOpen(!open);
-  };
+    function handleDateClick(arg: { date: Date; allDay: boolean }) {
+        setNewEvent({ ...newEvent, start: arg.date, id: String(new Date().getTime()) });
+        setShowCreateModal(true);
+    }
 
-  const handleNavigate = (action: any) => {
-    onNavigate(action);
-  };
+    const handleViewChange = (selectedOption: any) => {
+        setView(selectedOption.value);
+    };
 
-  return (
-    <div className='m-3'>
-      <div className="text-center">
-        <h1 className="text-2xl text-white font-bold">{label}</h1>
-      </div>
+    const handleEventClick = (clickInfo: any) => {
+        setSelectEvent(clickInfo.event);
+        setShowViewModal(true);
+    };
 
+    const handleEventClose = () => {
+        setSelectEvent(null);
+        setShowCreateModal(false);
+        setShowViewModal(false);
+        setShowDeleteModal(false);
+    };
+
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const eventToAdd = {
+            ...newEvent,
+            id: String(new Date().getTime()),
+        };
+        setEvents([...events, eventToAdd]);
+        setShowCreateModal(false);
+        setNewEvent({
+            title: "",
+            start: "",
+            id: "",
+        });
+    }    
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewEvent({
+            ...newEvent,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    function handleDeleteEvent() {
+        if (idToDelete !== null) {
+            setEvents(events.filter(event => event.id !== idToDelete));
+            setShowDeleteModal(false);
+            setIdToDelete(null);
+            setShowViewModal(false);
+        }
+    }
+
+    const handleAddEventButtonClick = () => {
+        setNewEvent({
+            title: "",
+            start: new Date(), 
+            id: String(new Date().getTime()),
+        });
+        setShowCreateModal(true);
+    };
     
-      <div className='relative flex justify-between'>
-        <div>
-          <button
-            className="flex w-32 relative justify-between rounded border border-gray-600 focus:outline-none focus:border-white px-4 py-2 bg-zinc-400 font-semibold"
-            onClick={toggleDropdown}
-          >
-            {itemText}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-chevron-down"
-            >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
+    useEffect(() => {
+        // Exemplo de uso: chamando updateSize ao inicializar o componente
+        if (calendarRef.current) {
+            calendarRef.current.getApi().updateSize();
+        }
+    }, []);
 
-          {open && (
-            <ul className='bg-white w-72 rounded absolute z-50 mt-2'>
-              {views.map((view: any, index: any) => (
-                <div key={index}>
-                  <li className='font-semibold rounded uppercase hover:bg-gray-300'>
-                    <button className="w-full  p-3 text-left" onClick={() => onView(view)}>
-                      {view}
-                    </button>
-                  </li>
+    // Função para lidar com eventos de redimensionamento da janela ou mudanças no contêiner do calendário
+    const handleWindowResize = () => {
+        if (calendarRef.current) {
+            calendarRef.current.getApi().updateSize();
+        }
+    };
+
+    // Adicionar um listener de evento de redimensionamento de janela
+    useEffect(() => {
+        window.addEventListener('resize', handleWindowResize);
+
+        return () => {
+            window.removeEventListener('resize', handleWindowResize);
+        };
+    }, []);
+    return (
+        <>
+            <main className="flex items-center justify-center">
+                <div className="md:w-[80vw] md:h-[80vh] w-screen">
+                    <div className="">
+                        <FullCalendar
+                        ref={calendarRef}
+                            plugins={[
+                                dayGridPlugin,
+                                interactionPlugin,
+                                timeGridPlugin,
+                                multiMonthPlugin,
+                            ]}
+                            buttonText={{
+                                today: "Hoje",
+                                month: "Mês",
+                                week: "Semana",
+                                day: "Dia",
+                                year: "Ano",
+                            }}
+                            customButtons={{
+                                addEventButton: {
+                                    text: "Adicionar Evento",
+                                    click: handleAddEventButtonClick, 
+                                }
+                            }}
+                            headerToolbar={{
+                                left: "addEventButton",
+                                center: "title",
+                                right: "multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay prev,next",
+                            }}
+                            events={events}
+                            nowIndicator={true}
+                            editable={true}
+                            droppable={true}
+                            selectable={true}
+                            selectMirror={true}
+                            dateClick={handleDateClick}
+                            eventClick={handleEventClick}
+                            locale={"pt-br"}
+                        />
+                        {showViewModal && (
+                            <Modal closeModal={handleEventClose}>
+                                <EventoModal
+                                    events={selectEvent}
+                                    onClose={handleEventClose}
+                                    onDelete={() => {
+                                        setIdToDelete(selectEvent.id);
+                                        setShowDeleteModal(true);
+                                    }}
+                                />
+                            </Modal>
+                        )}
+
+                        {showCreateModal && (
+                            <Modal closeModal={handleEventClose}>
+                                <div className="bg-white rounded-xl p-10">
+                                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                                        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+                                    </div>
+                                    <div className="mt-3 text-center sm:mt-5">
+                                        <h3 className="text-base font-semibold leading-6 text-gray-900">
+                                            Criar Evento
+                                        </h3>
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="mt-2">
+                                                <input
+                                                    type="text"
+                                                    name="title"
+                                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 
+                                                    shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                                    sm:text-sm sm:leading-6"
+                                                    value={newEvent.title}
+                                                    onChange={handleChange}
+                                                    placeholder="Título"
+                                                />
+                                                <input
+                                                    type="datetime-local"
+                                                    name="start"
+                                                    className="block w-full mt-2 rounded-md border-0 py-1.5 text-gray-900 
+                                                    shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                                    sm:text-sm sm:leading-6"
+                                                    value={newEvent.start.toString()}
+                                                    onChange={handleChange}
+                                                />
+                                                <input
+                                                    type="datetime-local"
+                                                    name="end"
+                                                    className="block w-full mt-2 rounded-md border-0 py-1.5 text-gray-900 
+                                                    shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                                    sm:text-sm sm:leading-6"
+                                                    value={newEvent.end?.toString()}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                            <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                                                <button
+                                                    type="submit"
+                                                    className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:col-start-2 disabled:opacity-25"
+                                                    disabled={newEvent.title === ""}
+                                                >
+                                                    Criar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                                                    onClick={handleEventClose}
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </Modal>
+                        )}
+                        {showDeleteModal && (
+                            <Modal closeModal={() => setShowDeleteModal(false)}>
+                                <div className="bg-white rounded-xl p-10">
+                                    <h3 className="text-lg leading-6 font-medium text-gray-900">Excluir Evento</h3>
+                                    <div className="mt-2">
+                                        <p className="text-sm text-gray-500">
+                                            Tem certeza que deseja excluir este evento?
+                                        </p>
+                                    </div>
+                                    <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                                        <button
+                                            type="button"
+                                            className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 sm:col-start-2"
+                                            onClick={handleDeleteEvent}
+                                        >
+                                            Excluir
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                                            onClick={() => setShowDeleteModal(false)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </Modal>
+                        )}
+                    </div>
                 </div>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className='flex my-2 gap-2'>
-
-          <button className="bg-zinc-400 px-4 py-2 rounded" onClick={() => handleNavigate('PREV')}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6" /></svg>
-          </button>
-
-          <button className="bg-zinc-400 px-4 py-2 font-semibold rounded" onClick={() => handleNavigate('TODAY')}>Hoje</button>
-
-          <button className="bg-zinc-400 px-4 py-2 rounded" onClick={() => handleNavigate('NEXT')}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6" /></svg>
-          </button>
-
-        </div>
-      </div>
-
-
-    </div>
-  );
-};
+            </main>
+        </>
+    );
+}

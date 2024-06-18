@@ -14,6 +14,7 @@ import AddEventModal from '@/components/eventos/AddEventModal'
 import { Calendar } from "@nextui-org/calendar";
 import { parseDate } from '@internationalized/date';
 import Modal from '@/components/Modal/Modal'
+import Calendario from '@/components/Calendario'
 
 interface Event {
   title: string;
@@ -156,8 +157,10 @@ export default function Home() {
       <nav className="flex justify-between mb-12 border-b border-violet-100 p-4">
         <h1 className="font-bold text-2xl text-gray-700">Agenda</h1>
       </nav>
-      <main className="flex items-center justify-center p-5">
-        <div className="grid grid-cols-10">
+      
+        <Calendario />
+        
+        {/* <div className="grid grid-cols-10">
           <div className=''>
             <Adicionar onAdd={handleAdd} />
           </div>
@@ -181,7 +184,7 @@ export default function Home() {
                   text: 'Adicionar Evento',
                 },
                 dropDownButton: {
-                  
+
                 }
               }}
               headerToolbar={{
@@ -214,7 +217,7 @@ export default function Home() {
             <AddEventModal events={addEventModal} onClose={handleEventClose} />
           )}
 
-          {/* <div id="draggable-el" className="ml-8 w-full border-2 p-2 rounded-md mt-16 lg:h-1/2 bg-violet-50">
+           <div id="draggable-el" className="ml-8 w-full border-2 p-2 rounded-md mt-16 lg:h-1/2 bg-violet-50">
             <h1 className="font-bold text-lg text-center">Eventos</h1>
             {events.map(event => (
               <div
@@ -225,9 +228,10 @@ export default function Home() {
                 {event.title}
               </div>
             ))}
-          </div> */}
-        </div>
-        <Transition.Root show={showModal} as={Fragment}>
+          </div> 
+        </div> 
+        */}
+        {/* <Transition.Root show={showModal} as={Fragment}>
           <Dialog as="div" className="relative z-10" onClose={setShowModal}>
             <Transition.Child
               as={Fragment}
@@ -293,8 +297,7 @@ export default function Home() {
               </div>
             </div>
           </Dialog>
-        </Transition.Root>
-      </main >
+        </Transition.Root> */}
     </>
   )
 }

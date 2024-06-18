@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 ::selection{
-  @apply opacity-50 bg-pink-200;
+  @apply opacity-50 bg-blue-200;
 }
 
 :root {
@@ -14,12 +14,11 @@ input {
   @apply px-2;
 }
   .fc-header-toolbar {
-    display: inline-block;
+    display: flex;
     padding: 4px 4px;
     
     @apply space-x-8;
 }
-
 .fc-day {
   @apply m-8;
 }
@@ -33,26 +32,26 @@ input {
 }
 
 .fc-h-event {
-  @apply bg-pink-500 border border-pink-600 ;
+  @apply bg-blue-500 border border-blue-600 ;
   
 }
 
 .fc .fc-daygrid-day.fc-day-today {
-  @apply bg-pink-100 ;
+  @apply bg-blue-100 ;
 }
 
 .fc .fc-button{
-  @apply bg-pink-800 hover:bg-pink-900  ;
+  @apply bg-blue-800 hover:bg-blue-900  ;
 }
 
 .fc .fc-button-primary:not(:disabled).fc-button-active {
-  @apply bg-pink-600;
+  @apply bg-blue-600;
 }
 
 .fc .fc-button-primary:disabled {
-  @apply bg-pink-600;
+  @apply bg-blue-600;
 }
 .fc-v-event {
-  @apply bg-pink-500 border border-pink-600 ;
+  @apply bg-blue-500 border border-blue-600 ;
   
 }

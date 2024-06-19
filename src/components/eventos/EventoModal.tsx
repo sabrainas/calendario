@@ -1,4 +1,5 @@
 import React from 'react'
+import { format, parseISO } from 'date-fns';
 
 export default function EventoModal({ events, onDelete }: any) {
   if (!events) {
@@ -10,11 +11,11 @@ export default function EventoModal({ events, onDelete }: any) {
       <h2 className="font-bold text-2xl border-b w-full text-center pb-2">Nome do evento: {events.title}</h2>
       <div>
         <label className='inline font-semibold text-lg'>Data de Início: </label>
-        {events.start.toLocaleString()}
+        {format(parseISO(events.start), 'dd/MM/yyyy HH:mm')}
       </div>
       <div>
         <label className='inline font-semibold text-lg'>Data de Fim: </label>
-        {events.end ? events.end.toLocaleString() : 'N/A'}
+        {events.end ? format(parseISO(events.end), 'dd/mm/yyyy hh:mm') : 'N/A'}
       </div>
       <div className='flex gap-5'>
         <button className="bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 px-3" onClick={onDelete}>Excluir</button>

@@ -49,49 +49,6 @@ export default function Adicionar({ onAdd }: any) {
 
     }
 
-
-    /*const handleSubmit = async (e:any) => {
-        e.preventDefault();
-        if(novoEvento.title && novoEvento.start && novoEvento.end){
-            const startDate = new Date(novoEvento.start);
-            const endDate = new Date(novoEvento.end);
-
-            if(startDate >= endDate){
-                alert('A data início deve ser anterior à dta de término');
-                return;
-            }
-
-            try {
-                const response = await fetch('http://localhost:3333/post/calendario', {
-                    method: 'POST', 
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(novoEvento),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao enviar evento para o servidor');
-                }
-
-                setNovoEvento({
-                    title: '',
-                    start: '',
-                    end: '',
-                    description: '',
-                    color: '',
-                    tipo: '',
-                });
-
-                
-            } catch (error) {
-                console.error('Erro ao enviar evento para o servidor:', error);
-            }
-        }
-    }*/
-    
-    //console.log(dadosArmazenados)
-
     return (
         <div className="p-3 rounded w-full">
 

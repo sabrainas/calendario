@@ -1,0 +1,26 @@
+/* Calendário Component */
+.closed-date {
+  background-color: #fca5a5; /* Vermelho */
+  color: white;
+}
+
+/* Mini Calendário */
+.mini-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.date-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  border-radius: 4px;
+  background-color: white;
+  color: #4b5563;
+}
+
+.date-cell.closed-date {
+  background-color: #d1d5db; /* Cinza */
+}

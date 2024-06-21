@@ -1,18 +1,13 @@
-"use client"
-import Calendario from '@/components/Calendario'
+"use client";
 import { NextUIProvider } from '@nextui-org/react';
+import Home from './Home';
 
-export default function Home() {
+export default function Index() {
 
   return (
     <>
-      <NextUIProvider>
-        <nav className="flex justify-between mb-12 border-b border-violet-100 p-4">
-          <h1 className="font-bold text-2xl text-gray-700">Agenda</h1>
-        </nav>
-
-        <Calendario />
-      </NextUIProvider>
+      <Home />
     </>
-  )
+  );
+
 }

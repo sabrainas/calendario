@@ -41,11 +41,22 @@ input {
 }
 
 .fc .fc-button{
-  @apply bg-blue-800 hover:bg-blue-900 ;
+  @apply bg-transparent font-bold text-black border-none;
+}
+
+.fc .fc-button-group {
+  border: 1px solid #E5E7EB; 
+  border-radius: 0.25rem;
+}
+
+.fc .fc-multiMonthYear-button,
+.fc .fc-dayGridMonth-button,
+.fc .fc-timeGridWeek-button {
+  border-right: 1px solid #E5E7EB; 
 }
 
 .fc .fc-button-primary:not(:disabled).fc-button-active {
-  @apply bg-blue-600;
+  @apply bg-sky-900;
 }
 
 .fc .fc-button-primary:disabled {

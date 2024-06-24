@@ -1,17 +1,15 @@
-/* Calendário Component */
-.closed-date {
-  background-color: #fca5a5; /* Vermelho */
-  color: white;
-}
-
 /* Mini Calendário */
 .mini-calendar {
+  width: 100%;
+}
+
+.grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
 }
 
-.date-cell {
+.date-cell, .date-cell-header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,5 +20,27 @@
 }
 
 .date-cell.closed-date {
-  background-color: #d1d5db; /* Cinza */
+  background-color: #fca5a5; /* Vermelho */
+  color: white;
+}
+
+.date-cell-header {
+  font-weight: bold;
+  background-color: #e5e7eb; /* Cinza claro */
+}
+
+.date-cell.empty-cell {
+  background-color: transparent;
+}
+
+.date-cell.current-month {
+  background-color: #e0f7fa; /* Azul claro */
+}
+
+.date-cell.other-month {
+  background-color: #f0f0f0; /* Cinza */
+}
+
+button {
+  cursor: pointer;
 }

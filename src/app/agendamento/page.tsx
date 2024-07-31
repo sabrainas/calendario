@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import MiniCalendar from "@/components/Calendario/MiniCalendar";
 
 const Agendamento = () => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<any>([]);
 
   const addEvent = (event: any) => {
     setEvents([...events, event]);

@@ -32,7 +32,7 @@ const Agendamento = () => {
       <div className="mt-4">
         <h2 className="font-bold text-xl text-gray-700">Eventos Agendados</h2>
         <ul>
-          {events.map((event, index) => (
+          {events.map((event:any, index:any) => (
             <li key={index}>
               {event.date.toLocaleDateString()} - {event.slot}
             </li>

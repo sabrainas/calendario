@@ -22,7 +22,7 @@ const MiniCalendar = ({ addEvent }:any) => {
 
   const renderDate = (date: number) => {
     const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), date);
-    const classNames = isWeekend(dayDate) ? "closed-date" : "";
+    const classNames = isWeekend(dayDate) ? "closed-date" : "hover:bg-slate-300 cursor-pointer";
     return (
       <div key={date} className={`date-cell ${classNames}`} onClick={() => handleDateClick(dayDate)}>
         {date}
@@ -49,7 +49,7 @@ const MiniCalendar = ({ addEvent }:any) => {
 
   const days = [];
   for (let i = 0; i < startDayOfWeek; i++) {
-    days.push(<div key={`empty-start-${i}`} className="date-cell empty-cell"></div>);
+    days.push(<div key={`empty-start-${i}`} className="date-cell empty-cell "></div>);
   }
 
   for (let i = 1; i <= daysInMonth; i++) {

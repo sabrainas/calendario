@@ -23,7 +23,11 @@
   background-color: #fca5a5; /* Vermelho */
   color: white;
 }
-
+.date-cell.closed-date:hover{
+  background-color: #fc7777; /* Vermelho */
+  color: white;
+  cursor: pointer;
+}
 .date-cell-header {
   font-weight: bold;
   background-color: #e5e7eb; /* Cinza claro */

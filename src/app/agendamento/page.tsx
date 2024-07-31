@@ -19,7 +19,7 @@ const Agendamento = () => {
         <div className="flex items-center mb-2">
           <input type="checkbox" id="tatuagem" name="tatuagem" />
           <label htmlFor="tatuagem" className="ml-2">
-            Possui tatuagem nos últimos 2 anos?
+            Possui tatuagem nos últimos 6 meses?
           </label>
         </div>
         <button

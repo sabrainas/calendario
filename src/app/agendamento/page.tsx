@@ -17,11 +17,6 @@ const Agendamento = () => {
         <h2 className="font-semibold text-lg mb-2">Perguntas para triagem de agendamento de sangue (marque as que forem verdadeiras para você)</h2>
         <div className="flex flex-col items-center mb-2">
           <div>
-            <input type="checkbox" id="boaSaude" name="boaSaude" className="mr-2" />
-            <label htmlFor="boaSaude">Não me considero em um bom estado de saúde para doar sangue</label>
-          </div>
-
-          <div>
             <input type="checkbox" id="doacaoMasculino" name="doacaoMasculino" className="mr-2" />
             <label htmlFor="doacaoMasculino">Doei sangue há menos de 2 meses (sexo biológico masculino)</label>
           </div>
